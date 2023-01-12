@@ -1,26 +1,28 @@
-const fs = require('fs')
-const { title } = require('process')
+import fs from 'fs'
 
-class ProductManager {
 
-  constructor() {
-    this.products = []
-    this.path = './archivos/products.json'
+export class ProductManager {
+
+  constructor(path) {
+    this.path = path
   }
 
-  async getProducts(){
-    try{
+  async getProducts(limit){
+    try {
       if(fs.existsSync(this.path)){
         const infoProducts = await fs.promises.readFile(this.path, 'utf-8')
-        const infoProductsJS = JSON.parse(infoProducts)
-        return console.log(infoProductsJS)
+        if(limit === 'max'){
+          console.log(infoProducts)
+          return JSON.parse(infoProducts)
+        }else{
+          return JSON.parse(infoProducts).slice(0, limit)
+        }
       } else {
         return []
       }
-    } catch(error){
-      console.log(error)
+    } catch (error) {
+      return error
     }
-    // return console.log(this.products)
   }
 
 
@@ -29,12 +31,12 @@ class ProductManager {
     if(!title || !description || !price || !thumbnail || !code || !stock) {
       return console.log('Error, product incomplete');
     } else {
-        const isCode = this.#evaluarCode(code)
+        const isCode = await this.#evaluarCode(code)
         if(isCode){
           console.log('That code already exist, try again')
         } else {
           const product = {
-            id: this.#generarId(), 
+            id: await this.#generarId(), 
             title,
             description,
             price,
@@ -42,29 +44,30 @@ class ProductManager {
             code,
             stock,
           }
-          this.products.push(product)
-          await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2))
+          const read = await this.getProducts()
+          read.push(product)
+          await fs.promises.writeFile(this.path, JSON.stringify(read, null, 2))
         } 
     }
     } catch(error) {
       console.log(error)
+      return error
     } 
   }
 
   async getProductById(idProduct){
     try {
-      if (fs.existsSync(this.path)){
-        await fs.promises.readFile(this.path, 'utf-8')
-        const productFound = this.#evaluarProductoId(idProduct)
-        if(productFound){
-          console.log(productFound)
-          return productFound
-        } else {
-          console.log('Product not found')
-        }
+      const read = await this.getProducts()
+      const prod = read.find((p)=>p.id===parseInt(idProduct))
+      if(prod){
+        console.log(prod)
+        return prod
+      }else{
+        return 'product not found'
       }
     } catch(error) {
       console.log(error)
+      return error
     }
   }
 
@@ -90,7 +93,8 @@ class ProductManager {
   }
 
   async deleteProduct(idProduct){
-    let read = await fs.promises.readFile(this.path, 'utf-8')
+    try {
+      let read = await fs.promises.readFile(this.path, 'utf-8')
     read = JSON.parse(read)
     let product = await this.getProductById(idProduct)
     if(product){
@@ -98,27 +102,58 @@ class ProductManager {
       await fs.promises.writeFile(this.path, JSON.stringify(filtrado, null, 2))
       return filtrado
     }
+    } catch (error) {
+      console.log(error)
+      return error
+    }
   }
 
 
-  #generarId() {
+  async #generarId() {
+    const read = await this.getProducts()
     let id =
-      this.products.length === 0
+      read.length === 0
         ? 1
-        : this.products[this.products.length - 1].id + 1
+        : read[read.length - 1].id + 1
     return id
   }
 
-  #evaluarProductoId(id){
-    return this.products.find(product => product.id === id)
-  }
+  // async #evaluarProductoId(id){
+  //   const read = await this.getProducts()
+  //   const findId = read.find((product)=>product.id === id)
+  //   return findId
+  // }
 
-  #evaluarCode(code){
-    return this.products.find(product => product.code === code)
+  async #evaluarCode(code){
+    const read = await this.getProducts()
+    const findCode = read.find((product)=>product.code === code)
+    return findCode
   }
 }
 
-const product = new ProductManager()
+// const productManager = new ProductManager('./archivos/products.json')
+
+// async function prueba() {
+//   await productManager.getProducts()
+//   // await productManager.addProduct('producto 1', 'Este es el producto prueba 1', 200, 'sin imagen', 'abc13423', 25)
+//   // await productManager.addProduct('producto 2', 'Este es el producto prueba 2', 200, 'sin imagen', 'dsa423dsdsa', 25)
+//   // await productManager.addProduct('producto 3', 'Este es el producto prueba 3', 200, 'sin imagen', 'asdasdasdas', 25)
+//   // await productManager.addProduct('producto 4', 'Este es el producto prueba 4', 200, 'sin imagen', 'dsadasas', 25)
+//   // const productoId = await productManager.getProductById(1)
+// }
+
+// prueba()
+
+
+
+
+
+
+
+
+
+
+
 
 // primer getProducts = array vacio
 // product.getProducts()
@@ -145,7 +180,6 @@ const product = new ProductManager()
 
 //borrar producto:
 // product.deleteProduct(1)
-
 
 
 

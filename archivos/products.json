@@ -5,7 +5,7 @@
     "description": "Este es el producto prueba 1",
     "price": 200,
     "thumbnail": "sin imagen",
-    "code": "abc123",
+    "code": "abc13423",
     "stock": 25
   },
   {
@@ -14,7 +14,25 @@
     "description": "Este es el producto prueba 2",
     "price": 200,
     "thumbnail": "sin imagen",
-    "code": "dsadsdsa",
+    "code": "dsa423dsdsa",
+    "stock": 25
+  },
+  {
+    "id": 3,
+    "title": "producto 3",
+    "description": "Este es el producto prueba 3",
+    "price": 200,
+    "thumbnail": "sin imagen",
+    "code": "asdasdasdas",
+    "stock": 25
+  },
+  {
+    "id": 4,
+    "title": "producto 4",
+    "description": "Este es el producto prueba 4",
+    "price": 200,
+    "thumbnail": "sin imagen",
+    "code": "dsadasas",
     "stock": 25
   }
 ]
